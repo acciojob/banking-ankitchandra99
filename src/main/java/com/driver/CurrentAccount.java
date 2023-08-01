@@ -17,29 +17,54 @@ public class CurrentAccount extends BankAccount{
         // If the license Id is valid, do nothing
         // If the characters of the license Id can be rearranged to create any valid license Id
         // If it is not possible, throw "Valid License can not be generated" Exception
-        char[] charArray = tradeLicenseId.toCharArray();
-        for (int i = 1; i < charArray.length; i++) {
-            if (charArray[i] == charArray[i - 1]) {
-                rearrangeLicenseId(charArray, i);
-                return;
+        if(!isLicenseNumberValid(tradeLicenseId)){
+            String rearrangeId=arrangeString(tradeLicenseId);
+            if(rearrangeId == ""){
+                throw new Exception("Valid License can not be generated");
+            }
+            else{
+                this.tradeLicenseId=rearrangeId;
             }
         }
     }
-    public void rearrangeLicenseId(char[] charArray, int index) {
-        int i = index;
-        int j = index + 1;
-        while (j < charArray.length && charArray[i] == charArray[j]) {
-            j++;
+    public boolean isLicenseNumberValid(String LicenseId){
+        for(int i=0;i<LicenseId.length();i++){
+            if(LicenseId.charAt(i)==LicenseId.charAt(i+1)){
+                return false;
+            }
         }
-        if (j == charArray.length) {
-            throw new RuntimeException("Valid License can not be generated");
-        }
-        char temp = charArray[index];
-        charArray[index] = charArray[j];
-        charArray[j] = temp;
-        tradeLicenseId = new String(charArray);
+        return true;
     }
+    public String arrangeString(String s) {
+            int m[]=new int[26];//Hashmap to store the frequency of each character
+            int n=s.length();
+            for(int i=0;i<n;i++)
+                m[s.charAt(i)-'a']++;
 
+            StringBuilder ans=new StringBuilder();
+            int i=0;
+            char prev='*';//Keep track of previous character
+            while(i<n){
+                int maxi=0,ind=0;
+                //We traverse the entire hashmap to find the character with maximum count and not equal to previous character
+                for(int j=0;j<26;j++){
+                    if(m[j]>maxi&&prev!=(j+'a')&&m[j]>0){
+                        maxi=m[j];
+                        ind=j;
+                    }
+                }
+                if(maxi==0) return "";//If maxi is 0 then no solution can be made as suitable element not found
+                prev=(char)(ind+'a');//Updating previous
+                ans.append(prev);
+                m[ind]--;  //Decreasing count from map since the character is done
+                i++;
+            }
+            return ans.toString();
+        }
+    /*
+        "aaabcc"
+        acacab
+    */
     public String getTradeLicenseId() {
         return tradeLicenseId;
     }
